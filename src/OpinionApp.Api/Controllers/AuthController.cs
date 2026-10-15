@@ -382,7 +382,7 @@ public sealed record RegisterRequest(
     [property: Required, EmailAddress, StringLength(254)] string Email,
     [property: Required, StringLength(128, MinimumLength = 10)] string Password,
     [property: Required, StringLength(128, MinimumLength = 10)] string ConfirmPassword,
-    [property: Required, RegularExpression("^\\d{2}/\\d{2}/\\d{4}$")] string DateOfBirth,
+    [RegularExpression(@"^\d{2}/\d{2}/\d{4}$")] string DateOfBirth,
     IFormFile? ProfilePhoto);
 
 public sealed record LoginRequest([property: Required, EmailAddress] string Email, [property: Required] string Password);
