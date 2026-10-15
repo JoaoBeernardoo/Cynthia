@@ -378,12 +378,13 @@ public sealed class AuthController(
 }
 
 public sealed record RegisterRequest(
-    [property: Required, StringLength(30, MinimumLength = 3), RegularExpression("^[a-zA-Z0-9_.]+$")] string UserName,
-    [property: Required, EmailAddress, StringLength(254)] string Email,
-    [property: Required, StringLength(128, MinimumLength = 10)] string Password,
-    [property: Required, StringLength(128, MinimumLength = 10)] string ConfirmPassword,
-    [RegularExpression(@"^\d{2}/\d{2}/\d{4}$")] string DateOfBirth,
-    IFormFile? ProfilePhoto);
+[Required, StringLength(30, MinimumLength = 3), RegularExpression("^[a-zA-Z0-9_.]+$")] string UserName,
+[Required, EmailAddress, StringLength(254)] string Email,
+[Required, StringLength(128, MinimumLength = 10)] string Password,
+[Required, StringLength(128, MinimumLength = 10)] string ConfirmPassword,
+[Required, RegularExpression(@"^\d{2}/\d{2}/\d{4}$")] string DateOfBirth,
+IFormFile? ProfilePhoto
+);
 
 public sealed record LoginRequest([property: Required, EmailAddress] string Email, [property: Required] string Password);
 public sealed record ConfirmEmailRequest([property: Required, EmailAddress] string Email, [property: Required] string Token);
