@@ -130,8 +130,16 @@ public sealed class AuthController(
         var user = await users.FindByEmailAsync(request.Email);
         if (user is null)
         {
+              logger.LogWarning(
+        "Confirmação falhou: usuário não encontrado para o e-mail {Email}",
+        request.Email);
             return BadRequest(new ProblemDetails { Title = "Link de confirmação inválido ou expirado.", Status = 400 });
         }
+
+    logger.LogInformation(
+        "Confirmando e-mail {Email}. Tamanho do token recebido: {TokenLength}",
+        request.Email,
+        request.Token?.Length ?? 0);
 
         var result = await users.ConfirmEmailAsync(user, request.Token);
         return result.Succeeded
