@@ -395,7 +395,10 @@ IFormFile? ProfilePhoto
 );
 
 public sealed record LoginRequest([property: Required, EmailAddress] string Email, [property: Required] string Password);
-public sealed record ConfirmEmailRequest([property: Required, EmailAddress] string Email, [property: Required] string Token);
+public sealed record ConfirmEmailRequest(
+    [Required, EmailAddress] string Email,
+    [Required] string Token
+);
 public sealed record EmailRequest([property: Required, EmailAddress] string Email);
 public sealed record ResetPasswordRequest(
     [property: Required, EmailAddress] string Email,
