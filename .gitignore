@@ -6,5 +6,6 @@ web/.angular/
 web/coverage/
 .env
 **/App_Data/
+/src/OpinionApp.Api/appsettings.Local.json
 .vs/
 .idea/

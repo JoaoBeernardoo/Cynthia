@@ -11,6 +11,7 @@ using System.Security.Cryptography;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
 var localDataDirectory = Path.Combine(
     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Cynthia");
@@ -27,6 +28,10 @@ builder.Services.AddProblemDetails();
 
 var connectionString = builder.Configuration.GetConnectionString("Default")
     ?? throw new InvalidOperationException("ConnectionStrings:Default is required.");
+var databaseHost = new Npgsql.NpgsqlConnectionStringBuilder(connectionString).Host;
+var usesLocalDatabase = string.Equals(databaseHost, "localhost", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(databaseHost, "127.0.0.1", StringComparison.Ordinal)
+    || string.Equals(databaseHost, "::1", StringComparison.Ordinal);
 if (builder.Environment.IsDevelopment() && !string.IsNullOrWhiteSpace(builder.Configuration["POSTGRES_PASSWORD"]))
 {
     var localConnection = new Npgsql.NpgsqlConnectionStringBuilder(connectionString)
@@ -109,7 +114,7 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() && usesLocalDatabase)
 {
     var composeFile = Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "..", "..", "docker-compose.yml"));
     if (!File.Exists(composeFile))
@@ -180,22 +185,37 @@ await using (var scope = app.Services.CreateAsyncScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
     var connected = false;
+    Npgsql.NpgsqlException? lastConnectionError = null;
     for (var attempt = 1; attempt <= 30; attempt++)
     {
-        if (await db.Database.CanConnectAsync())
+        try
         {
+            await using var connection = new Npgsql.NpgsqlConnection(connectionString);
+            await connection.OpenAsync();
             connected = true;
             break;
         }
+        catch (Npgsql.NpgsqlException exception)
+        {
+            lastConnectionError = exception;
+            logger.LogInformation(
+                "Waiting for PostgreSQL host {DatabaseHost} ({Attempt}/30): {Error}",
+                databaseHost,
+                attempt,
+                exception.Message);
+        }
 
-        logger.LogInformation("Waiting for PostgreSQL ({Attempt}/30)...", attempt);
         await Task.Delay(TimeSpan.FromSeconds(1));
     }
 
     if (!connected)
     {
+        var locationHint = usesLocalDatabase
+            ? "Check Docker Desktop and port 5432."
+            : "Check the Supabase host, network access, and whether the Session pooler is required.";
         throw new InvalidOperationException(
-            "PostgreSQL did not become available. Check Docker Desktop and port 5432, then retry dotnet run.");
+            $"Could not connect to PostgreSQL host '{databaseHost}'. {locationHint} Last error: {lastConnectionError?.Message ?? "No PostgreSQL connection error was returned."}",
+            lastConnectionError);
     }
 
     await db.Database.MigrateAsync();

@@ -1,0 +1,12 @@
+.git
+.vs
+.idea
+**/bin
+**/obj
+**/node_modules
+**/dist
+**/.angular
+**/coverage
+**/App_Data
+.env
+**/appsettings.Local.json

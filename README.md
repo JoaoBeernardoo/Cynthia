@@ -36,6 +36,42 @@ O processo gera e persiste a chave local do JWT em `%LOCALAPPDATA%\Cynthia`, for
 
 Mantenha a janela da API aberta. Para parar a API, pressione `Ctrl+C`. Os dados do PostgreSQL permanecem no volume Docker entre execuções.
 
+### Usar PostgreSQL do Supabase no desenvolvimento
+
+As chaves `sb_publishable_...` e `sb_secret_...` são chaves da API do Supabase, não credenciais PostgreSQL. A API Cynthia conecta diretamente ao banco usando Npgsql. Edite `src/OpinionApp.Api/appsettings.Local.json` e substitua os dados de exemplo pelos valores exibidos em **Connect** no painel do Supabase:
+
+```json
+{
+  "ConnectionStrings": {
+    "Default": "Host=SEU_HOST;Port=5432;Database=postgres;Username=SEU_USUARIO;Password=SUA_SENHA_DO_BANCO;SSL Mode=Require;Trust Server Certificate=true"
+  }
+}
+```
+
+Esse arquivo é local e está ignorado pelo Git. Não o adicione ao repositório nem compartilhe a senha. Depois, inicie normalmente com `dotnet run --project .\src\OpinionApp.Api\OpinionApp.Api.csproj`. Quando a connection string aponta para um host remoto, a API não inicia PostgreSQL via Docker e aplica as migrations ao iniciar. Para voltar ao banco local, remova ou renomeie `appsettings.Local.json`.
+
+Não use a `sb_secret` como senha do banco nem a publique no front-end. Se uma senha do banco ou chave secreta foi compartilhada, redefina-a no painel do Supabase e atualize o arquivo local. Se o hostname não resolver, confira se copiou exatamente o endereço exibido no painel; em redes IPv4, tente o host e as credenciais de **Session pooler**.
+
+## Publicar a API no Render com Docker
+
+Crie um **Web Service** conectado ao repositório e selecione **Docker**. Deixe **Root Directory** em branco para que o Render encontre o `Dockerfile` na raiz. O Dockerfile compila e publica a API ASP.NET Core 10 e escuta na porta fornecida pelo Render.
+
+Configure no painel do serviço, em **Environment**, os valores abaixo usando a connection string PostgreSQL exibida pelo Supabase e os segredos de produção:
+
+| Variável | Valor |
+| --- | --- |
+| `ConnectionStrings__Default` | Connection string PostgreSQL do Supabase (host, porta, usuário, senha e SSL) |
+| `Jwt__SigningKey` | Segredo aleatório de pelo menos 32 bytes |
+| `Jwt__Issuer` | `Cynthia` |
+| `Jwt__Audience` | `Cynthia.Web` |
+| `Frontend__BaseUrl` | URL pública do front-end |
+| `Cors__AllowedOrigins__0` | Origem pública do front-end, sem barra final |
+| `Email__Host`, `Email__Port`, `Email__From` | SMTP de produção para confirmação e recuperação de conta |
+| `Email__Username`, `Email__Password` | Credenciais SMTP, se exigidas pelo provedor |
+| `Email__EnableSsl` | `true` quando exigido pelo provedor SMTP |
+
+Não configure `sb_secret` como senha do PostgreSQL. O Render injeta `PORT`; o container usa essa porta automaticamente. Em Production, a API não tenta iniciar Docker Compose e executa as migrations na inicialização. Fotos continuam no disco local do serviço e podem não persistir entre deploys; para produção, use armazenamento de objetos persistente. Publique o front-end separadamente e configure a URL da API nele.
+
 ## Iniciar o front-end
 
 Em outro PowerShell:
