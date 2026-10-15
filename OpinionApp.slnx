@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/OpinionApp.Api/OpinionApp.Api.csproj" />
+    <Project Path="src/OpinionApp.Application/OpinionApp.Application.csproj" />
+    <Project Path="src/OpinionApp.Domain/OpinionApp.Domain.csproj" />
+    <Project Path="src/OpinionApp.Infrastructure/OpinionApp.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OpinionApp.Tests/OpinionApp.Tests.csproj" />
+  </Folder>
+</Solution>

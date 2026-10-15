@@ -1,0 +1,10 @@
+**/bin/
+**/obj/
+**/node_modules/
+web/dist/
+web/.angular/
+web/coverage/
+.env
+**/App_Data/
+.vs/
+.idea/

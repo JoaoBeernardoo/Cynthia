@@ -1,0 +1,47 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <a routerLink="/feed" class="brand"><span class="brand-mark">C</span> Cynthia</a>
+    <div class="sidebar-label">MENU</div>
+    <nav class="main-nav">
+      <a routerLink="/feed" routerLinkActive="nav-active"><span class="nav-icon">⌂</span> Feed</a>
+      <a routerLink="/map" routerLinkActive="nav-active"><span class="nav-icon">⌖</span> Explorar mapa</a>
+      <a routerLink="/map"><span class="nav-icon">⌕</span> Descobrir lugares</a>
+      <a *ngIf="auth.user()" routerLink="/profile" routerLinkActive="nav-active"><span class="nav-icon">◉</span> Meu perfil</a>
+    </nav>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-note"><span class="note-spark">✳</span><strong>Descubra algo novo</strong><p>Boas experiências merecem ser compartilhadas.</p><a routerLink="/map">Explorar perto de mim <span>→</span></a></div>
+    <div class="sidebar-user" *ngIf="auth.user() as user">
+      <div class="avatar avatar-blue">
+        <img *ngIf="profilePhotoUrl(user.profilePhotoUrl) as photo" [src]="photo" [alt]="'Foto de ' + user.userName" />
+        <span *ngIf="!user.profilePhotoUrl">{{ user.userName.slice(0, 1).toUpperCase() }}</span>
+      </div>
+      <div class="user-copy"><strong>{{ user.userName }}</strong><small>membro da comunidade</small></div>
+      <button type="button" aria-label="Sair" class="logout-button" (click)="logout()">↗</button>
+    </div>
+    <div class="sidebar-user" *ngIf="!auth.user()"><a routerLink="/login" class="outline-button full-width">Entrar</a></div>
+    <div class="sidebar-footer">© 2026 Cynthia <span>·</span> Feito para descobrir</div>
+  </aside>
+
+  <main class="main-area">
+    <header class="topbar">
+      <a routerLink="/feed" class="brand mobile-brand"><span class="brand-mark">C</span> Cynthia</a>
+      <div class="breadcrumb"><span>Comunidade</span><b>/</b><strong>Compartilhe boas descobertas</strong></div>
+      <div class="top-actions">
+        <button class="icon-button" routerLink="/map" aria-label="Buscar lugares">⌕</button>
+        <a *ngIf="auth.user()" class="create-button" routerLink="/feed"><span>＋</span> Nova opinião</a>
+        <a *ngIf="!auth.user()" class="top-login" routerLink="/login">Entrar <span>↗</span></a>
+      </div>
+    </header>
+    <div class="error-banner" *ngIf="errors.message() as message" role="alert">
+      <span>!</span>{{ message }}<button type="button" (click)="dismissError()" aria-label="Fechar">×</button>
+    </div>
+    <div class="content-shell"><router-outlet /></div>
+    <nav class="mobile-nav">
+      <a routerLink="/feed" routerLinkActive="mobile-active"><span>⌂</span>Feed</a>
+      <a routerLink="/map" routerLinkActive="mobile-active"><span>⌖</span>Mapa</a>
+      <a routerLink="/register" *ngIf="!auth.user()"><span>＋</span>Criar conta</a>
+      <a routerLink="/profile" *ngIf="auth.user()" routerLinkActive="mobile-active"><span>◉</span>Perfil</a>
+      <button type="button" *ngIf="auth.user()" (click)="logout()"><span>↗</span>Sair</button>
+    </nav>
+  </main>
+</div>
