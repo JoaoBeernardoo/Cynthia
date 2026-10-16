@@ -75,8 +75,10 @@ public sealed class PlacesController(AppDbContext db, UserManager<ApplicationUse
         var result = await db.Places.AsNoTracking()
             .Where(place => EF.Functions.ILike(place.Name, $"%{search}%")
                 || (place.City != null && EF.Functions.ILike(place.City, $"%{search}%"))
+                || (place.Address != null && EF.Functions.ILike(place.Address, $"%{search}%"))
                 || EF.Functions.ILike(place.Category, $"%{search}%"))
-            .OrderBy(place => place.Name)
+            .OrderBy(place => EF.Functions.ILike(place.Name, $"{search}%") ? 0 : 1)
+            .ThenBy(place => place.Name)
             .Skip((page - 1) * pageSize).Take(pageSize)
             .Select(place => new PlaceDto(
                 place.Id, place.Name, place.Category, place.Description, place.Address,

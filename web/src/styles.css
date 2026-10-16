@@ -100,9 +100,19 @@ h1, h2, p { margin-top: 0; }
 .place-search { width: 100%; min-height: 33px; padding: 0 9px; border: 1px solid #e0e7f1; border-radius: 7px; outline: 0; background: #fff; color: var(--ink); font-size: 11px; }
 .place-search:focus { border-color: #83a8f4; }
 .place-search::placeholder { color: #9aa5b4; }
-.place-select { display: flex; align-items: center; gap: 6px; color: #8390a4; }
+.selected-place { display: flex; min-width: 0; align-items: center; gap: 8px; padding: 8px 9px; border: 1px solid #cfe0fa; border-radius: 7px; background: #fff; color: #536075; font-size: 10px; }
+.selected-place > span:nth-child(2) { min-width: 0; flex: 1; }
+.selected-place strong { color: #354765; }
+.selected-place button { flex: 0 0 auto; padding: 3px 6px; border: 0; background: transparent; color: var(--blue); font-size: 10px; font-weight: 700; cursor: pointer; }
+.place-suggestions { display: grid; max-height: 190px; overflow-y: auto; border: 1px solid #e0e7f1; border-radius: 7px; background: #fff; }
+.place-suggestion { display: flex; min-width: 0; align-items: center; gap: 8px; padding: 8px 9px; border: 0; border-bottom: 1px solid #eef1f5; background: #fff; color: #536075; text-align: left; cursor: pointer; }
+.place-suggestion:last-of-type { border-bottom: 0; }
+.place-suggestion:hover, .place-suggestion:focus-visible { background: #f3f7ff; outline: 0; }
+.place-suggestion > span:nth-child(2) { display: grid; min-width: 0; flex: 1; gap: 2px; }
+.place-suggestion strong { overflow: hidden; color: #354765; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.place-suggestion small { overflow: hidden; color: #7d899b; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.place-distance { flex: 0 0 auto; color: #7d899b; font-size: 9px; }
 .pin-small { color: var(--blue); font-size: 17px; }
-.place-select select { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: #536075; font-size: 11px; }
 .place-validation, .place-note { margin: 0; font-size: 10px; line-height: 1.4; }
 .place-validation { color: #b3443f; }
 .place-note { color: #7d899b; }
@@ -343,7 +353,6 @@ h1, h2, p { margin-top: 0; }
   .compose-tools { align-items: flex-start; flex-direction: column; }
   .compose-tools .primary-button { width: 100%; }
   .place-picker { width: 100%; max-width: none; }
-  .place-select select { max-width: none; }
   .post-actions { gap: 15px; }
   .post-actions button { font-size: 9px; }
   .post-actions .share-action { display: none; }

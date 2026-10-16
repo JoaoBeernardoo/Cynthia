@@ -50,7 +50,7 @@ export class ApiService {
 
   searchPlaces(query: string): Observable<Place[]> {
     return this.http.get<Place[]>(`${this.base}/places/search`, {
-      params: new HttpParams().set('q', query).set('pageSize', '20')
+      params: new HttpParams().set('q', query).set('pageSize', '50')
     });
   }
 

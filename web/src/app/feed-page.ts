@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Subject, catchError, debounceTime, distinctUntilChanged, finalize, of, startWith, switchMap, takeUntil } from 'rxjs';
+import { Subject, catchError, debounceTime, distinctUntilChanged, finalize, of, startWith, switchMap, takeUntil, tap } from 'rxjs';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { apiAssetUrl } from './environment';
@@ -27,12 +27,21 @@ import { Place, Post } from './models';
             <label class="place-field-label" for="publish-place">Local da opinião <span>Obrigatório</span></label>
             <input class="place-search" type="search" [formControl]="placeSearch"
               placeholder="Pesquisar pelo nome do local" aria-label="Pesquisar local pelo nome" />
-            <div class="place-select">
+            <div class="selected-place" *ngIf="selectedPlace">
               <span class="pin-small">⌖</span>
-              <select id="publish-place" formControlName="placeId">
-                <option value="">Selecione um local</option>
-                <option *ngFor="let place of places" [value]="place.id">{{ place.name }}{{ place.city ? ' · ' + place.city : '' }}{{ place.address ? ' · ' + place.address : '' }}</option>
-              </select>
+              <span><strong>{{ selectedPlace.name }}</strong>{{ selectedPlace.city ? ' · ' + selectedPlace.city : '' }}{{ selectedPlace.address ? ' · ' + selectedPlace.address : '' }}</span>
+              <button type="button" (click)="clearSelectedPlace()">Alterar</button>
+            </div>
+            <div class="place-suggestions" role="listbox" aria-label="Resultados da busca"
+              *ngIf="placeSearch.value && !selectedPlace">
+              <button class="place-suggestion" type="button" role="option" *ngFor="let place of places"
+                (click)="selectPlace(place)">
+                <span class="pin-small">⌖</span>
+                <span><strong>{{ place.name }}</strong><small>{{ place.city }}{{ place.city && place.address ? ' · ' : '' }}{{ place.address }}</small></span>
+                <span class="place-distance" *ngIf="place.distanceMeters != null">{{ formatDistance(place.distanceMeters) }}</span>
+              </button>
+              <p class="place-note" *ngIf="loadingPlaces">Buscando locais...</p>
+              <p class="place-note" *ngIf="!loadingPlaces && !places.length && !placeSearchError">Nenhum local encontrado.</p>
             </div>
             <p class="place-validation" role="alert" *ngIf="publishAttempted && form.controls.placeId.invalid">
               É obrigatório selecionar um local para publicar.
@@ -42,7 +51,6 @@ import { Place, Post } from './models';
             </p>
             <p class="place-note" *ngIf="locationMessage">{{ locationMessage }}</p>
             <p class="place-validation" role="alert" *ngIf="placeSearchError">{{ placeSearchError }}</p>
-            <p class="place-note" *ngIf="!loadingPlaces && !places.length && !placeSearchError">Nenhum local encontrado.</p>
           </div>
           <button class="primary-button" type="submit" [disabled]="publishing">
             {{ publishing ? 'Publicando...' : 'Publicar opinião' }} <span>↗</span>
@@ -105,6 +113,7 @@ export class FeedPage implements OnInit, OnDestroy {
   loadingPlaces = true;
   publishing = false;
   publishAttempted = false;
+  selectedPlace: Place | null = null;
   placeSearchError = '';
   locationMessage = '';
   page = 1;
@@ -140,6 +149,14 @@ export class FeedPage implements OnInit, OnDestroy {
       startWith(this.placeSearch.value),
       debounceTime(250),
       distinctUntilChanged(),
+      tap((query) => {
+        if (query.trim()) {
+          this.selectedPlace = null;
+          this.form.controls.placeId.setValue('');
+        }
+        this.places = [];
+        this.loadingPlaces = true;
+      }),
       switchMap((query) => {
         this.placeSearchError = '';
         const request = query.trim()
@@ -148,6 +165,7 @@ export class FeedPage implements OnInit, OnDestroy {
         return request.pipe(
           catchError(() => {
             this.placeSearchError = 'Não foi possível carregar os locais. Tente novamente.';
+            this.loadingPlaces = false;
             return of([]);
           })
         );
@@ -157,7 +175,13 @@ export class FeedPage implements OnInit, OnDestroy {
       next: (places) => {
         this.places = this.sortPlaces(places);
         this.loadingPlaces = false;
-        if (placeId && places.some((place) => place.id === placeId)) this.form.patchValue({ placeId });
+        if (placeId) {
+          const selectedPlace = places.find((place) => place.id === placeId);
+          if (selectedPlace) {
+            this.selectedPlace = selectedPlace;
+            this.form.patchValue({ placeId });
+          }
+        }
       }
     });
   }
@@ -177,11 +201,29 @@ export class FeedPage implements OnInit, OnDestroy {
       next: () => {
         this.form.reset({ content: '', placeId: '' });
         this.placeSearch.setValue('');
+        this.selectedPlace = null;
         this.publishAttempted = false;
         this.page = 1;
         this.load();
       }
     });
+  }
+
+  selectPlace(place: Place): void {
+    this.selectedPlace = place;
+    this.form.controls.placeId.setValue(place.id);
+    this.form.controls.placeId.markAsTouched();
+    this.placeSearch.setValue('');
+  }
+
+  clearSelectedPlace(): void {
+    this.selectedPlace = null;
+    this.form.controls.placeId.setValue('');
+    this.placeSearch.setValue('');
+  }
+
+  formatDistance(meters: number): string {
+    return meters >= 1000 ? `${(meters / 1000).toFixed(1)} km` : `${Math.round(meters)} m`;
   }
 
   private requestLocation(): void {
