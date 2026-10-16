@@ -172,6 +172,6 @@ public sealed class UsersController(
 }
 
 public sealed record UpdateProfileRequest(
-    [property: Required, StringLength(30, MinimumLength = 3), RegularExpression("^[a-zA-Z0-9_.]+$")] string UserName,
-    [property: StringLength(300)] string? Bio,
-    [property: StringLength(500), Url] string? ProfilePhotoUrl);
+    [Required, StringLength(30, MinimumLength = 3), RegularExpression("^[a-zA-Z0-9_.]+$")] string UserName,
+    [StringLength(300)] string? Bio,
+    [StringLength(500), Url] string? ProfilePhotoUrl);

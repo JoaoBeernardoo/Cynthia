@@ -403,8 +403,8 @@ public sealed record ConfirmEmailRequest(
     [Required, EmailAddress] string Email,
     [Required] string Token
 );
-public sealed record EmailRequest([property: Required, EmailAddress] string Email);
+public sealed record EmailRequest([Required, EmailAddress] string Email);
 public sealed record ResetPasswordRequest(
-    [property: Required, EmailAddress] string Email,
-    [property: Required] string Token,
-    [property: Required, StringLength(128, MinimumLength = 10)] string Password);
+    [Required, EmailAddress] string Email,
+    [Required] string Token,
+    [Required, StringLength(128, MinimumLength = 10)] string Password);

@@ -221,6 +221,6 @@ public sealed record CreatePostRequest(
     Guid? PlaceId,
     [Range(1, 5)] int? Rating);
 public sealed record UpdatePostRequest(
-    [property: Required, StringLength(2000, MinimumLength = 2)] string Content,
-    [property: Range(1, 5)] int? Rating);
-public sealed record CreateCommentRequest([property: Required, StringLength(1000, MinimumLength = 1)] string Content);
+    [Required, StringLength(2000, MinimumLength = 2)] string Content,
+    [Range(1, 5)] int? Rating);
+public sealed record CreateCommentRequest([Required, StringLength(1000, MinimumLength = 1)] string Content);
