@@ -26,8 +26,8 @@ import { Place, Post } from './models';
           <div class="place-select">
             <span class="pin-small">⌖</span>
             <select formControlName="placeId">
-              <option value="">Sem local específico</option>
-              <option *ngFor="let place of places" [value]="place.id">{{ place.name }}{{ place.city ? ' · ' + place.city : '' }}</option>
+              <option value="">Selecione um local</option>
+              <option *ngFor="let place of places" [value]="place.id">{{ place.name }}{{ place.city ? ' · ' + place.city : '' }}{{ place.address ? ' · ' + place.address : '' }}</option>
             </select>
           </div>
           <button class="primary-button" type="submit" [disabled]="form.invalid || publishing">
@@ -106,7 +106,7 @@ export class FeedPage implements OnInit {
   ) {
     this.form = this.formBuilder.group({
       content: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(2000)]],
-      placeId: ['']
+      placeId: ['', Validators.required]
     });
     this.sharedPostId = this.route.snapshot.queryParamMap.get('post');
   }
