@@ -91,10 +91,21 @@ h1, h2, p { margin-top: 0; }
 .compose-form textarea, .place-modal textarea { width: 100%; resize: vertical; border: 0; outline: 0; color: var(--ink); font-size: 13px; line-height: 1.7; }
 .compose-form textarea { min-height: 58px; padding: 3px 0 9px; }
 .compose-form textarea::placeholder { color: #a3adbc; }
-.compose-tools { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 12px; border-top: 1px solid #f0f2f6; }
+.compose-tools { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding-top: 12px; border-top: 1px solid #f0f2f6; }
+.place-picker { display: grid; min-width: 0; max-width: 520px; flex: 1; gap: 7px; padding: 11px 12px; border: 1px solid #d6e2f5; border-radius: 10px; background: #f7f9fe; transition: border-color .15s, background .15s; }
+.place-picker:focus-within { border-color: #83a8f4; background: #f3f7ff; }
+.place-picker-error { border-color: #d95b58; background: #fff8f7; }
+.place-field-label { display: flex; align-items: center; gap: 7px; color: #354765; font-size: 11px; font-weight: 750; }
+.place-field-label span { color: #b3443f; font-size: 9px; font-weight: 650; }
+.place-search { width: 100%; min-height: 33px; padding: 0 9px; border: 1px solid #e0e7f1; border-radius: 7px; outline: 0; background: #fff; color: var(--ink); font-size: 11px; }
+.place-search:focus { border-color: #83a8f4; }
+.place-search::placeholder { color: #9aa5b4; }
 .place-select { display: flex; align-items: center; gap: 6px; color: #8390a4; }
 .pin-small { color: var(--blue); font-size: 17px; }
-.place-select select { max-width: 230px; border: 0; outline: 0; background: transparent; color: #738096; font-size: 11px; }
+.place-select select { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: #536075; font-size: 11px; }
+.place-validation, .place-note { margin: 0; font-size: 10px; line-height: 1.4; }
+.place-validation { color: #b3443f; }
+.place-note { color: #7d899b; }
 .compose-tools .primary-button { min-height: 34px; padding: 0 13px; font-size: 11px; }
 .compose-tools .primary-button span { font-size: 15px; }
 .guest-prompt { align-items: center; justify-content: space-between; }
@@ -331,7 +342,8 @@ h1, h2, p { margin-top: 0; }
   .compose-card > .avatar { width: 32px; height: 32px; flex-basis: 32px; }
   .compose-tools { align-items: flex-start; flex-direction: column; }
   .compose-tools .primary-button { width: 100%; }
-  .place-select select { max-width: 240px; }
+  .place-picker { width: 100%; max-width: none; }
+  .place-select select { max-width: none; }
   .post-actions { gap: 15px; }
   .post-actions button { font-size: 9px; }
   .post-actions .share-action { display: none; }
