@@ -207,13 +207,13 @@ public sealed class PlacesController(AppDbContext db, UserManager<ApplicationUse
 }
 
 public sealed record CreatePlaceRequest(
-    [property: Required, StringLength(160, MinimumLength = 2)] string Name,
-    [property: Required, StringLength(80, MinimumLength = 2)] string Category,
-    [property: StringLength(1000)] string? Description,
-    [property: StringLength(300)] string? Address,
-    [property: StringLength(120)] string? City,
-    [property: StringLength(120)] string? State,
-    [property: StringLength(120)] string? Country,
+    [Required, StringLength(160, MinimumLength = 2)] string Name,
+    [Required, StringLength(80, MinimumLength = 2)] string Category,
+    [StringLength(1000)] string? Description,
+    [StringLength(300)] string? Address,
+    [StringLength(120)] string? City,
+    [StringLength(120)] string? State,
+    [StringLength(120)] string? Country,
     double Latitude,
     double Longitude);
 

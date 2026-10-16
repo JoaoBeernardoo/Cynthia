@@ -217,9 +217,9 @@ public sealed class PostsController(AppDbContext db, UserManager<ApplicationUser
 }
 
 public sealed record CreatePostRequest(
-    [property: Required, StringLength(2000, MinimumLength = 2)] string Content,
+    [Required, StringLength(2000, MinimumLength = 2)] string Content,
     Guid? PlaceId,
-    [property: Range(1, 5)] int? Rating);
+    [Range(1, 5)] int? Rating);
 public sealed record UpdatePostRequest(
     [property: Required, StringLength(2000, MinimumLength = 2)] string Content,
     [property: Range(1, 5)] int? Rating);
