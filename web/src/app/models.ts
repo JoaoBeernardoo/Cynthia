@@ -29,6 +29,7 @@ export interface Place {
 export interface Post {
   id: string;
   content: string;
+  imageUrl?: string | null;
   rating?: number | null;
   createdAt: string;
   authorId: string;

@@ -69,8 +69,32 @@ Configure no painel do serviço, em **Environment**, os valores abaixo usando a 
 | `Email__Host`, `Email__Port`, `Email__From` | SMTP de produção para confirmação e recuperação de conta |
 | `Email__Username`, `Email__Password` | Credenciais SMTP, se exigidas pelo provedor |
 | `Email__EnableSsl` | `true` quando exigido pelo provedor SMTP |
+| `SupabaseStorage__Endpoint`, `SupabaseStorage__Bucket`, `SupabaseStorage__Region` | Endpoint S3, bucket público e região do projeto Supabase |
+| `SupabaseStorage__AccessKey`, `SupabaseStorage__SecretKey` | Credenciais S3 armazenadas somente como segredos do serviço |
 
-Não configure `sb_secret` como senha do PostgreSQL. O Render injeta `PORT`; o container usa essa porta automaticamente. Em Production, a API não tenta iniciar Docker Compose e executa as migrations na inicialização. Fotos continuam no disco local do serviço e podem não persistir entre deploys; para produção, use armazenamento de objetos persistente. Publique o front-end separadamente e configure a URL da API nele.
+Não configure `sb_secret` como senha do PostgreSQL. O Render injeta `PORT`; o container usa essa porta automaticamente. Em Production, a API não tenta iniciar Docker Compose e executa as migrations na inicialização. Publique o front-end separadamente e configure a URL da API nele.
+
+### Usar armazenamento S3 do Supabase para fotos
+
+O feed e as fotos de perfil usam o serviço S3-compatible do Supabase quando a API recebe a configuração completa abaixo. O bucket `Cynthia` precisa existir e estar configurado como **público** para que as imagens das publicações sejam exibidas diretamente no feed. A API mantém a chave secreta no servidor; nunca configure essas credenciais no Angular, em `web/public/config.js` ou em qualquer JSON enviado ao navegador.
+
+Para desenvolvimento, adicione os valores atuais (depois de rotacionar qualquer chave que já tenha sido compartilhada) em `src/OpinionApp.Api/appsettings.Local.json`, arquivo já ignorado pelo Git:
+
+```json
+{
+  "SupabaseStorage": {
+    "Endpoint": "https://qqengbaunxelnffazspx.storage.supabase.co/storage/v1/s3",
+    "Bucket": "Cynthia",
+    "Region": "REGIAO_DO_PROJETO",
+    "AccessKey": "SUA_NOVA_ACCESS_KEY",
+    "SecretKey": "SUA_NOVA_SECRET_KEY"
+  }
+}
+```
+
+Substitua `REGIAO_DO_PROJETO` pela região indicada nas configurações do seu projeto Supabase. Em produção, configure `SupabaseStorage__Endpoint`, `SupabaseStorage__Bucket`, `SupabaseStorage__Region`, `SupabaseStorage__AccessKey` e `SupabaseStorage__SecretKey` como variáveis de ambiente/segredos do serviço. Se a configuração S3 não for informada, a API continua usando o armazenamento local de desenvolvimento. A API aplica a migration de imagem automaticamente ao iniciar.
+
+No compositor do feed, escolha uma imagem JPEG, PNG ou WebP de até 5 MB; ela será enviada à API junto com a publicação e armazenada no bucket. O endereço público da foto é salvo com a publicação e retornado no feed.
 
 ## Iniciar o front-end
 
@@ -88,7 +112,7 @@ Abra <http://localhost:4200>. O cliente Angular pode continuar sendo iniciado se
 
 O formulário de cadastro solicita nome de usuário, data de nascimento (`dd/mm/aaaa`), e-mail, senha e confirmação da senha. A data é validada e permanece privada. A foto é opcional: JPEG, PNG ou WebP até 5 MB. Após selecionar um arquivo, a tela exibe uma prévia retangular; a imagem é validada no servidor e armazenada fora da pasta pública. Fotos também podem ser alteradas em **Perfil e configurações**.
 
-As fotos locais ficam em `src/OpinionApp.Api/App_Data/profile-photos` (ignorada pelo Git). Esse armazenamento local é adequado para desenvolvimento; em produção, use armazenamento de objetos persistente e adapte `IImageStorageService`.
+Sem configuração do Supabase S3, as fotos locais ficam em `src/OpinionApp.Api/App_Data` (ignorada pelo Git). Esse armazenamento local é adequado para desenvolvimento; em produção, configure o armazenamento de objetos acima.
 
 ## Fluxo para testar
 

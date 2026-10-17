@@ -7,6 +7,7 @@ public sealed class OpinionPost
     public Guid? PlaceId { get; set; }
     public Place? Place { get; set; }
     public required string Content { get; set; }
+    public string? ImageUrl { get; set; }
     public int? Rating { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }

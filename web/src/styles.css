@@ -91,6 +91,11 @@ h1, h2, p { margin-top: 0; }
 .compose-form textarea, .place-modal textarea { width: 100%; resize: vertical; border: 0; outline: 0; color: var(--ink); font-size: 13px; line-height: 1.7; }
 .compose-form textarea { min-height: 58px; padding: 3px 0 9px; }
 .compose-form textarea::placeholder { color: #a3adbc; }
+.post-photo-control { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; padding: 0 0 12px; }
+.post-photo-control .photo-picker { min-height: 30px; }
+.photo-note { color: #8a96a7; font-size: 10px; }
+.post-photo-preview { display: flex; width: 100%; align-items: flex-start; flex-direction: column; gap: 6px; }
+.post-photo-preview img { width: min(100%, 320px); max-height: 220px; border-radius: 9px; object-fit: cover; }
 .compose-tools { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding-top: 12px; border-top: 1px solid #f0f2f6; }
 .place-picker { display: grid; min-width: 0; max-width: 520px; flex: 1; gap: 7px; padding: 11px 12px; border: 1px solid #d6e2f5; border-radius: 10px; background: #f7f9fe; transition: border-color .15s, background .15s; }
 .place-picker:focus-within { border-color: #83a8f4; background: #f3f7ff; }
@@ -135,6 +140,7 @@ h1, h2, p { margin-top: 0; }
 .more-button { width: 28px; height: 28px; border: 0; border-radius: 7px; background: transparent; color: #8c98a9; font-size: 21px; }
 .more-button:hover { background: #f6f8fb; }
 .post-content { margin: 16px 0 13px 50px; color: #354154; font-size: 13px; line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; }
+.post-image { display: block; width: min(calc(100% - 50px), 620px); max-height: 520px; margin: 0 0 15px 50px; border-radius: 10px; background: #f3f5f8; object-fit: contain; }
 .post-place { display: flex; align-items: center; gap: 10px; margin: 0 0 15px 50px; padding: 10px 11px; border: 1px solid #e6edf8; border-radius: 9px; background: #f8faff; }
 .place-symbol { display: grid; width: 30px; height: 30px; flex: 0 0 30px; place-items: center; border-radius: 8px; background: #e9f1ff; color: var(--blue); font-size: 18px; }
 .post-place > span:nth-child(2) { display: grid; flex: 1; gap: 3px; }
@@ -329,6 +335,7 @@ h1, h2, p { margin-top: 0; }
   .compose-card, .post-card { padding-right: 14px; padding-left: 14px; }
   .post-card { padding-bottom: 0; }
   .post-content, .post-place, .post-actions, .comments-panel { margin-left: 0; }
+  .post-image { width: 100%; margin-left: 0; }
   .guest-prompt { flex-wrap: wrap; }
   .guest-prompt .primary-button { width: 100%; }
   .map-layout { display: flex; flex-direction: column; }

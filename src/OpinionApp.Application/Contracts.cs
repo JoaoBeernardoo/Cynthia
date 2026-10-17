@@ -24,4 +24,7 @@ public interface IImageStorageService
     Task<string> SaveProfilePhotoAsync(string extension, Stream content, CancellationToken cancellationToken);
     Task<Stream?> OpenProfilePhotoAsync(string fileName, CancellationToken cancellationToken);
     Task DeleteProfilePhotoAsync(string fileName, CancellationToken cancellationToken);
+    Task<string> SavePostPhotoAsync(string extension, Stream content, CancellationToken cancellationToken);
+    Task<Stream?> OpenPostPhotoAsync(string fileName, CancellationToken cancellationToken);
+    Task DeletePostPhotoAsync(string photoUrl, CancellationToken cancellationToken);
 }

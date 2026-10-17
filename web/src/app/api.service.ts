@@ -26,6 +26,14 @@ export class ApiService {
     return this.http.post(`${this.base}/posts`, { content, placeId: placeId || null });
   }
 
+  createPostWithPhoto(content: string, placeId: string, photo: File): Observable<unknown> {
+    const form = new FormData();
+    form.set('content', content);
+    form.set('placeId', placeId);
+    form.set('photo', photo, photo.name);
+    return this.http.post(`${this.base}/posts/with-image`, form);
+  }
+
   like(postId: string): Observable<void> {
     return this.http.put<void>(`${this.base}/posts/${postId}/like`, {});
   }

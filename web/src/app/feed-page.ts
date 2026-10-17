@@ -22,6 +22,16 @@ import { Place, Post } from './models';
       <div class="avatar avatar-blue">{{ user.userName.slice(0, 1).toUpperCase() }}</div>
       <form class="compose-form" [formGroup]="form" (ngSubmit)="publish()">
         <textarea formControlName="content" rows="3" placeholder="Que lugar ou experiência você quer compartilhar?"></textarea>
+        <div class="post-photo-control">
+          <label class="photo-picker"><input #photoInput type="file" accept="image/jpeg,image/png,image/webp"
+            (change)="selectPhoto($event)" /> + Adicionar foto</label>
+          <span class="photo-note">JPEG, PNG ou WebP · até 5 MB</span>
+          <p class="place-validation" role="alert" *ngIf="photoError">{{ photoError }}</p>
+          <div class="post-photo-preview" *ngIf="photoPreviewUrl">
+            <img [src]="photoPreviewUrl" alt="Prévia da foto da publicação" />
+            <button type="button" class="text-button" (click)="removePhoto(photoInput)">Remover foto</button>
+          </div>
+        </div>
         <div class="compose-tools">
           <div class="place-picker" [class.place-picker-error]="publishAttempted && form.controls.placeId.invalid">
             <label class="place-field-label" for="publish-place">Local da opinião <span>Obrigatório</span></label>
@@ -80,6 +90,8 @@ import { Place, Post } from './models';
         <div class="post-author"><strong>{{ post.authorName || 'Pessoa da comunidade' }}</strong><span>@{{ post.authorName }} · {{ post.createdAt | date:'d MMM, HH:mm' }}</span></div>
       </div>
       <p class="post-content">{{ post.content }}</p>
+      <img class="post-image" *ngIf="imageUrl(post.imageUrl) as photo" [src]="photo"
+        [alt]="'Foto publicada por ' + post.authorName" loading="lazy" />
       <a class="post-place" *ngIf="post.place" [routerLink]="['/map']" [queryParams]="{ place: post.place.id }">
         <span class="place-symbol">⌖</span><span><strong>{{ post.place.name }}</strong><small>{{ post.place.category }}{{ post.place.city ? ' · ' + post.place.city : '' }}</small></span><span class="place-arrow">↗</span>
       </a>
@@ -115,6 +127,9 @@ export class FeedPage implements OnInit, OnDestroy {
   publishAttempted = false;
   selectedPlace: Place | null = null;
   placeSearchError = '';
+  photoError = '';
+  photoPreviewUrl: string | null = null;
+  private selectedPhoto: File | null = null;
   locationMessage = '';
   page = 1;
   commentsFor: string | null = null;
@@ -187,8 +202,38 @@ export class FeedPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.clearPhotoPreview();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  selectPhoto(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const photo = input.files?.[0];
+    if (!photo) return;
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(photo.type) || photo.size > 5 * 1024 * 1024) {
+      this.removePhoto(input);
+      this.photoError = 'Escolha uma imagem JPEG, PNG ou WebP de até 5 MB.';
+      return;
+    }
+
+    this.clearPhotoPreview();
+    this.selectedPhoto = photo;
+    this.photoPreviewUrl = URL.createObjectURL(photo);
+    this.photoError = '';
+  }
+
+  removePhoto(input: HTMLInputElement): void {
+    input.value = '';
+    this.clearPhotoPreview();
+    this.photoError = '';
+  }
+
+  private clearPhotoPreview(): void {
+    if (this.photoPreviewUrl) URL.revokeObjectURL(this.photoPreviewUrl);
+    this.photoPreviewUrl = null;
+    this.selectedPhoto = null;
   }
 
   publish(): void {
@@ -197,9 +242,14 @@ export class FeedPage implements OnInit, OnDestroy {
     if (this.form.invalid) return;
     this.publishing = true;
     const { content, placeId } = this.form.getRawValue();
-    this.api.createPost(content!.trim(), placeId).pipe(finalize(() => (this.publishing = false))).subscribe({
+    const request = this.selectedPhoto
+      ? this.api.createPostWithPhoto(content!.trim(), placeId!, this.selectedPhoto)
+      : this.api.createPost(content!.trim(), placeId);
+    request.pipe(finalize(() => (this.publishing = false))).subscribe({
       next: () => {
         this.form.reset({ content: '', placeId: '' });
+        this.clearPhotoPreview();
+        this.photoError = '';
         this.placeSearch.setValue('');
         this.selectedPlace = null;
         this.publishAttempted = false;

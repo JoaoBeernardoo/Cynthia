@@ -93,8 +93,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<OpinionApp.Application.IEmailSender, SmtpEmailSender>();
-builder.Services.AddSingleton<OpinionApp.Application.IImageStorageService>(
-    _ => new LocalImageStorageService(builder.Environment.ContentRootPath));
+var supabaseStorageOptions = builder.Configuration.GetSection("SupabaseStorage").Get<SupabaseStorageOptions>()
+    ?? new SupabaseStorageOptions();
+if (supabaseStorageOptions.HasAnyCredential && !supabaseStorageOptions.IsComplete)
+{
+    throw new InvalidOperationException(
+        "SupabaseStorage requires Endpoint, Bucket, Region, AccessKey, and SecretKey when storage is configured.");
+}
+if (supabaseStorageOptions.IsComplete)
+{
+    builder.Services.AddSingleton<OpinionApp.Application.IImageStorageService>(
+        _ => new SupabaseImageStorageService(supabaseStorageOptions));
+}
+else
+{
+    builder.Services.AddSingleton<OpinionApp.Application.IImageStorageService>(
+        _ => new LocalImageStorageService(builder.Environment.ContentRootPath));
+}
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? ["http://localhost:4200"];

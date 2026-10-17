@@ -161,7 +161,7 @@ public sealed class UsersController(
             .OrderByDescending(post => post.CreatedAt).Skip((page - 1) * pageSize).Take(pageSize)
             .Select(post => new
             {
-                post.Id, post.Content, post.Rating, post.CreatedAt, post.AuthorId,
+                post.Id, post.Content, post.ImageUrl, post.Rating, post.CreatedAt, post.AuthorId,
                 AuthorName = db.Users.Where(user => user.Id == post.AuthorId).Select(user => user.UserName).FirstOrDefault(),
                 Place = post.Place == null ? null : new { post.Place.Id, post.Place.Name, post.Place.Category, post.Place.City },
                 LikeCount = post.Likes.Count,

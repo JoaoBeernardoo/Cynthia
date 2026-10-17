@@ -39,6 +39,7 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
         builder.Entity<OpinionPost>(entity =>
         {
             entity.Property(post => post.Content).HasMaxLength(2000).IsRequired();
+            entity.Property(post => post.ImageUrl).HasMaxLength(1000);
             entity.HasIndex(post => new { post.CreatedAt, post.Id });
             entity.HasIndex(post => new { post.PlaceId, post.CreatedAt });
             entity.HasQueryFilter(post => post.DeletedAt == null);
