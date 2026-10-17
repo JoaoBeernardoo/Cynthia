@@ -103,7 +103,6 @@ public sealed class UsersController(
             }
         }
         user.Bio = request.Bio?.Trim();
-        user.ProfilePhotoUrl = request.ProfilePhotoUrl?.Trim();
         var updateResult = await users.UpdateAsync(user);
         if (!updateResult.Succeeded)
         {
@@ -173,5 +172,4 @@ public sealed class UsersController(
 
 public sealed record UpdateProfileRequest(
     [Required, StringLength(30, MinimumLength = 3), RegularExpression("^[a-zA-Z0-9_.]+$")] string UserName,
-    [StringLength(300)] string? Bio,
-    [StringLength(500), Url] string? ProfilePhotoUrl);
+    [StringLength(300)] string? Bio);

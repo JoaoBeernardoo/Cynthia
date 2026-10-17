@@ -107,8 +107,7 @@ export class ProfilePage implements OnInit {
     const value = this.form.getRawValue();
     this.api.updateProfile({
       userName: value.userName ?? '',
-      bio: value.bio ?? '',
-      profilePhotoUrl: this.profilePhotoUrl ?? ''
+      bio: value.bio ?? ''
     }).pipe(finalize(() => (this.saving = false))).subscribe({
       next: () => {
         this.saved = true;

@@ -78,7 +78,7 @@ export class ApiService {
     );
   }
 
-  updateProfile(profile: { userName: string; bio: string; profilePhotoUrl: string }): Observable<void> {
+  updateProfile(profile: { userName: string; bio: string }): Observable<void> {
     return this.http.put<void>(`${this.base}/users/me`, profile);
   }
 
