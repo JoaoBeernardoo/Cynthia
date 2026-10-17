@@ -1,6 +1,52 @@
 @OpinionApp.Api_HostAddress = http://localhost:5140
 
-GET {{OpinionApp.Api_HostAddress}}/weatherforecast/
+@userId = SUBSTITUA_PELO_ID_DO_USUARIO
+@suggestionId = SUBSTITUA_PELO_ID_DA_SUGESTAO
+@accessToken = COLE_UM_ACCESS_TOKEN
+
+### Perfil público e comentários
+GET {{OpinionApp.Api_HostAddress}}/api/users/{{userId}}/comments
 Accept: application/json
 
 ###
+
+### Listar sugestões públicas
+GET {{OpinionApp.Api_HostAddress}}/api/suggestions
+Accept: application/json
+
+### Consultar uma sugestão específica
+GET {{OpinionApp.Api_HostAddress}}/api/suggestions/{{suggestionId}}
+Accept: application/json
+
+### Criar sugestão (conta confirmada)
+POST {{OpinionApp.Api_HostAddress}}/api/suggestions
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "title": "Permitir filtrar opiniões por nota",
+  "content": "Seria útil filtrar o feed por avaliações de uma a cinco estrelas."
+}
+
+### Ler discussão pública
+GET {{OpinionApp.Api_HostAddress}}/api/suggestions/{{suggestionId}}/comments
+Accept: application/json
+
+### Participar da discussão (conta confirmada; sugestão aberta)
+POST {{OpinionApp.Api_HostAddress}}/api/suggestions/{{suggestionId}}/comments
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "content": "Também seria interessante poder combinar esse filtro com a busca por local."
+}
+
+### Avaliar e encerrar (somente a conta de suporte configurada)
+PUT {{OpinionApp.Api_HostAddress}}/api/suggestions/{{suggestionId}}/review
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "isWorthImplementing": true,
+  "response": "A ideia faz sentido; vamos considerar no planejamento das próximas melhorias."
+}

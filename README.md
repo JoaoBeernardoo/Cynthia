@@ -120,8 +120,10 @@ Sem configuração do Supabase S3, as fotos locais ficam em `src/OpinionApp.Api/
 2. Use senha de pelo menos 10 caracteres, com maiúscula, minúscula, número e símbolo; confirme a senha e informe nascimento no formato indicado.
 3. Abra Mailpit em <http://localhost:8025> e confirme o e-mail.
 4. Entre, publique uma opinião, associe um local e use as curtidas/comentários.
-5. Abra o mapa para permitir a localização ou pesquisar/navegar manualmente; locais persistidos aparecem para outras contas.
-6. Para cadastrar um local, selecione **Cadastrar local**, ajuste o marcador no mapa e salve.
+5. Clique no nome de quem publicou ou comentou para abrir o perfil público e ver os comentários dessa pessoa.
+6. Use **Sugestões** para enviar uma ideia e conversar com a comunidade. A conta `ccynthiaapps@gmail.com` aparece como **Cynthia Suporte** e é a única autorizada a registrar a decisão final e encerrar uma sugestão.
+7. Abra o mapa para permitir a localização ou pesquisar/navegar manualmente; locais persistidos aparecem para outras contas.
+8. Para cadastrar um local, selecione **Cadastrar local**, ajuste o marcador no mapa e salve.
 
 ## Configuração de produção
 
@@ -137,6 +139,7 @@ Em produção, configure secrets no provedor (não em arquivos versionados):
 | `Email__EnableSsl`, `Email__From` | TLS e endereço remetente |
 | `Frontend__BaseUrl` | Base para links de confirmação e recuperação |
 | `Cors__AllowedOrigins__0` | Origem Angular permitida |
+| `Support__Email` | E-mail da conta de suporte autorizada a avaliar sugestões (padrão: `ccynthiaapps@gmail.com`) |
 
 O [.env.example](.env.example) contém nomes de configuração sem segredos. Nunca registre senhas, refresh tokens ou códigos de confirmação nos logs. Em produção, use HTTPS, segredos gerenciados e um banco com backup.
 
@@ -158,8 +161,9 @@ As migrations versionadas ficam em `src/OpinionApp.Infrastructure/Persistence/Mi
 ## Endpoints principais
 
 - Autenticação: `POST /api/auth/register`, `login`, `session`, `confirm-email`, `resend-confirmation`, `refresh`, `logout`, `forgot-password`, `reset-password`.
-- Usuários: `GET/PUT /api/users/me`, `POST /api/users/me/profile-photo`, `GET /api/users/search`, `GET /api/users/{id}`, `GET /api/users/{id}/posts`.
+- Usuários: `GET/PUT /api/users/me`, `POST /api/users/me/profile-photo`, `GET /api/users/search`, `GET /api/users/{id}`, `GET /api/users/{id}/posts`, `GET /api/users/{id}/comments`.
 - Publicações: `GET /api/posts`, `GET/POST /api/posts/{id}`, `PUT/DELETE /api/posts/{id}`, `PUT/DELETE /api/posts/{id}/like`, `GET/POST /api/posts/{id}/comments`.
+- Sugestões: `GET/POST /api/suggestions`, `GET /api/suggestions/{id}`, `GET/POST /api/suggestions/{id}/comments`, `PUT /api/suggestions/{id}/review`.
 - Locais: `GET /api/places`, `GET /api/places/{id}`, `GET /api/places/{id}/posts`, `GET /api/places/search?q=...`, `GET /api/places/nearby?latitude=...&longitude=...&radiusMeters=...`, `POST /api/places`.
 - Saúde: `GET /health`.
 
@@ -173,6 +177,7 @@ Feed e buscas são paginados. A API utiliza validações, DTOs, Problem Details,
 - A data de nascimento não é incluída nos perfis públicos. Imagens passam por checagem de assinatura real, formato e limite de tamanho.
 - O mapa pede permissão de localização ao abri-lo, mas não salva nem compartilha a posição do usuário.
 - Opiniões são renderizadas como texto, não como HTML.
+- Perfis públicos exibem comentários ligados a opiniões que ainda estão visíveis; e-mail e data de nascimento continuam privados. Sugestões e discussões são públicas, mas exigem uma conta confirmada para publicar ou responder. Somente o e-mail de suporte configurado pode registrar a decisão final; uma sugestão encerrada não aceita novas respostas.
 
 Em implantação, mantenha API e front-end em domínios compatíveis com o cookie `SameSite=Strict`. Domínios de sites diferentes requerem estratégia CSRF explícita e configuração de cookies/CORS revisada.
 
@@ -186,8 +191,8 @@ Em implantação, mantenha API e front-end em domínios compatíveis com o cooki
 
 ## Limitações conhecidas
 
-- Ainda não há edição/exclusão de locais, alteração de senha na sessão, denúncias, moderação ou administração.
-- Falta front-end para perfil público, busca de usuários e páginas dedicadas de detalhes de opinião/local.
+- Ainda não há edição/exclusão de locais, alteração de senha na sessão, denúncias ou administração geral.
+- Falta busca de usuários e páginas dedicadas de detalhes de opinião/local.
 - Comentários podem ser criados/listados, mas ainda não editados/excluídos.
 - Não há média de notas: a primeira versão prioriza opiniões textuais.
 - Parte das consultas/regras ainda reside nos controllers; os contratos e camadas existentes podem ser evoluídos para serviços e repositórios específicos.

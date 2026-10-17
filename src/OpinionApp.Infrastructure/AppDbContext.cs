@@ -12,6 +12,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<OpinionPost> Posts => Set<OpinionPost>();
     public DbSet<PostLike> Likes => Set<PostLike>();
     public DbSet<PostComment> Comments => Set<PostComment>();
+    public DbSet<ImprovementSuggestion> Suggestions => Set<ImprovementSuggestion>();
+    public DbSet<ImprovementSuggestionComment> SuggestionComments => Set<ImprovementSuggestionComment>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -56,6 +58,20 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options)
             entity.Property(comment => comment.Content).HasMaxLength(1000).IsRequired();
             entity.HasIndex(comment => new { comment.PostId, comment.CreatedAt });
             entity.HasQueryFilter(comment => comment.DeletedAt == null);
+        });
+        builder.Entity<ImprovementSuggestion>(entity =>
+        {
+            entity.Property(suggestion => suggestion.Title).HasMaxLength(120).IsRequired();
+            entity.Property(suggestion => suggestion.Content).HasMaxLength(2000).IsRequired();
+            entity.Property(suggestion => suggestion.SupportResponse).HasMaxLength(1000);
+            entity.HasIndex(suggestion => new { suggestion.CreatedAt, suggestion.Id });
+        });
+        builder.Entity<ImprovementSuggestionComment>(entity =>
+        {
+            entity.Property(comment => comment.Content).HasMaxLength(1000).IsRequired();
+            entity.HasIndex(comment => new { comment.SuggestionId, comment.CreatedAt });
+            entity.HasOne(comment => comment.Suggestion).WithMany(suggestion => suggestion.Comments)
+                .HasForeignKey(comment => comment.SuggestionId).OnDelete(DeleteBehavior.Cascade);
         });
         builder.Entity<RefreshToken>(entity =>
         {

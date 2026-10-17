@@ -6,6 +6,7 @@
       <a routerLink="/feed" routerLinkActive="nav-active"><span class="nav-icon">⌂</span> Feed</a>
       <a routerLink="/map" routerLinkActive="nav-active"><span class="nav-icon">⌖</span> Explorar mapa</a>
       <a routerLink="/map"><span class="nav-icon">⌕</span> Descobrir lugares</a>
+      <a routerLink="/suggestions" routerLinkActive="nav-active"><span class="nav-icon">✳</span> Sugestões</a>
       <a *ngIf="auth.user()" routerLink="/profile" routerLinkActive="nav-active"><span class="nav-icon">◉</span> Meu perfil</a>
     </nav>
     <div class="sidebar-spacer"></div>
@@ -39,6 +40,7 @@
     <nav class="mobile-nav">
       <a routerLink="/feed" routerLinkActive="mobile-active"><span>⌂</span>Feed</a>
       <a routerLink="/map" routerLinkActive="mobile-active"><span>⌖</span>Mapa</a>
+      <a routerLink="/suggestions" routerLinkActive="mobile-active"><span>✳</span>Sugestões</a>
       <a routerLink="/register" *ngIf="!auth.user()"><span>＋</span>Criar conta</a>
       <a routerLink="/profile" *ngIf="auth.user()" routerLinkActive="mobile-active"><span>◉</span>Perfil</a>
       <button type="button" *ngIf="auth.user()" (click)="logout()"><span>↗</span>Sair</button>

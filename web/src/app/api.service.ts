@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from './environment';
-import { Place, Post } from './models';
+import { Place, Post, PublicProfile, Suggestion, SuggestionComment, UserComment } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -46,8 +46,8 @@ export class ApiService {
     return this.http.get<Post>(`${this.base}/posts/${id}`);
   }
 
-  comments(postId: string): Observable<{ id: string; content: string; authorName: string; createdAt: string }[]> {
-    return this.http.get<{ id: string; content: string; authorName: string; createdAt: string }[]>(
+  comments(postId: string): Observable<{ id: string; content: string; authorId: string; authorName: string; createdAt: string }[]> {
+    return this.http.get<{ id: string; content: string; authorId: string; authorName: string; createdAt: string }[]>(
       `${this.base}/posts/${postId}/comments`
     );
   }
@@ -93,5 +93,37 @@ export class ApiService {
       `${this.base}/places/${placeId}/posts`,
       { params: { pageSize: 5 } }
     );
+  }
+
+  publicProfile(id: string): Observable<PublicProfile> {
+    return this.http.get<PublicProfile>(`${this.base}/users/${id}`);
+  }
+
+  userComments(id: string, page = 1): Observable<UserComment[]> {
+    return this.http.get<UserComment[]>(`${this.base}/users/${id}/comments`, {
+      params: { page, pageSize: 30 }
+    });
+  }
+
+  suggestions(): Observable<Suggestion[]> {
+    return this.http.get<Suggestion[]>(`${this.base}/suggestions`, { params: { pageSize: 100 } });
+  }
+
+  createSuggestion(title: string, content: string): Observable<Suggestion> {
+    return this.http.post<Suggestion>(`${this.base}/suggestions`, { title, content });
+  }
+
+  suggestionComments(id: string, page = 1): Observable<SuggestionComment[]> {
+    return this.http.get<SuggestionComment[]>(`${this.base}/suggestions/${id}/comments`, {
+      params: { page, pageSize: 50 }
+    });
+  }
+
+  addSuggestionComment(id: string, content: string): Observable<unknown> {
+    return this.http.post(`${this.base}/suggestions/${id}/comments`, { content });
+  }
+
+  reviewSuggestion(id: string, isWorthImplementing: boolean, response: string): Observable<unknown> {
+    return this.http.put(`${this.base}/suggestions/${id}/review`, { isWorthImplementing, response });
   }
 }

@@ -154,6 +154,77 @@ namespace OpinionApp.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("OpinionApp.Domain.ImprovementSuggestion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AuthorId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool?>("IsWorthImplementing")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReviewedById")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SupportResponse")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt", "Id");
+
+                    b.ToTable("Suggestions");
+                });
+
+            modelBuilder.Entity("OpinionApp.Domain.ImprovementSuggestionComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AuthorId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("SuggestionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SuggestionId", "CreatedAt");
+
+                    b.ToTable("SuggestionComments");
+                });
+
             modelBuilder.Entity("OpinionApp.Domain.OpinionPost", b =>
                 {
                     b.Property<Guid>("Id")
@@ -478,6 +549,17 @@ namespace OpinionApp.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("OpinionApp.Domain.ImprovementSuggestionComment", b =>
+                {
+                    b.HasOne("OpinionApp.Domain.ImprovementSuggestion", "Suggestion")
+                        .WithMany("Comments")
+                        .HasForeignKey("SuggestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Suggestion");
+                });
+
             modelBuilder.Entity("OpinionApp.Domain.OpinionPost", b =>
                 {
                     b.HasOne("OpinionApp.Domain.Place", "Place")
@@ -508,6 +590,11 @@ namespace OpinionApp.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("OpinionApp.Domain.ImprovementSuggestion", b =>
+                {
+                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("OpinionApp.Domain.OpinionPost", b =>

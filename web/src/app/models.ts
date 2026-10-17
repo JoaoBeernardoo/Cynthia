@@ -40,3 +40,43 @@ export interface Post {
   commentCount: number;
   place?: Pick<Place, 'id' | 'name' | 'category' | 'city'> | null;
 }
+
+export interface PublicProfile {
+  id: string;
+  userName: string;
+  profilePhotoUrl?: string | null;
+  bio?: string | null;
+  createdAt: string;
+  postCount: number;
+}
+
+export interface UserComment {
+  id: string;
+  content: string;
+  createdAt: string;
+  postId: string;
+  postContent: string;
+  placeName?: string | null;
+}
+
+export interface Suggestion {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  authorId: string;
+  authorName: string;
+  commentCount: number;
+  isWorthImplementing: boolean | null;
+  supportResponse?: string | null;
+  reviewedAt?: string | null;
+  canReview: boolean;
+}
+
+export interface SuggestionComment {
+  id: string;
+  content: string;
+  createdAt: string;
+  authorId: string;
+  authorName: string;
+}

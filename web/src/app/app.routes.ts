@@ -6,6 +6,8 @@ export const routes: Routes = [
   { path: 'feed', loadComponent: () => import('./feed-page').then((module) => module.FeedPage) },
   { path: 'map', loadComponent: () => import('./map-page').then((module) => module.MapPage) },
   { path: 'profile', canActivate: [authGuard], loadComponent: () => import('./profile-page').then((module) => module.ProfilePage) },
+  { path: 'users/:id', loadComponent: () => import('./public-profile-page').then((module) => module.PublicProfilePage) },
+  { path: 'suggestions', loadComponent: () => import('./suggestions-page').then((module) => module.SuggestionsPage) },
   { path: 'login', loadComponent: () => import('./auth-page').then((module) => module.AuthPage) },
   { path: 'register', loadComponent: () => import('./auth-page').then((module) => module.AuthPage) },
   { path: 'confirm-email', loadComponent: () => import('./confirm-email-page').then((module) => module.ConfirmEmailPage) },

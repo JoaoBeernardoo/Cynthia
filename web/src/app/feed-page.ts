@@ -87,7 +87,7 @@ import { Place, Post } from './models';
           <img *ngIf="imageUrl(post.authorPhoto) as photo" [src]="photo" [alt]="post.authorName" />
           <span *ngIf="!post.authorPhoto">{{ post.authorName.slice(0, 1).toUpperCase() || '?' }}</span>
         </div>
-        <div class="post-author"><strong>{{ post.authorName || 'Pessoa da comunidade' }}</strong><span>@{{ post.authorName }} · {{ post.createdAt | date:'d MMM, HH:mm' }}</span></div>
+        <div class="post-author"><a [routerLink]="['/users', post.authorId]"><strong>{{ post.authorName || 'Pessoa da comunidade' }}</strong></a><span>@{{ post.authorName }} · {{ post.createdAt | date:'d MMM, HH:mm' }}</span></div>
       </div>
       <p class="post-content">{{ post.content }}</p>
       <img class="post-image" *ngIf="imageUrl(post.imageUrl) as photo" [src]="photo"
@@ -104,7 +104,7 @@ import { Place, Post } from './models';
       </div>
       <div class="comments-panel" *ngIf="commentsFor === post.id">
         <p class="muted" *ngIf="comments.length === 0">Seja a primeira pessoa a comentar.</p>
-        <p class="comment-row" *ngFor="let comment of comments"><strong>{{ comment.authorName }}</strong> {{ comment.content }}</p>
+        <p class="comment-row" *ngFor="let comment of comments"><a [routerLink]="['/users', comment.authorId]"><strong>{{ comment.authorName }}</strong></a> {{ comment.content }}</p>
         <form class="comment-form" *ngIf="auth.user()" (ngSubmit)="addComment(post)">
           <input [(ngModel)]="commentText" name="comment" placeholder="Escreva um comentário..." maxlength="1000" />
           <button class="text-button" [disabled]="!commentText.trim()">Enviar</button>
@@ -133,7 +133,7 @@ export class FeedPage implements OnInit, OnDestroy {
   locationMessage = '';
   page = 1;
   commentsFor: string | null = null;
-  comments: { id: string; content: string; authorName: string; createdAt: string }[] = [];
+  comments: { id: string; content: string; authorId: string; authorName: string; createdAt: string }[] = [];
   commentText = '';
   hasMore = true;
   readonly form;

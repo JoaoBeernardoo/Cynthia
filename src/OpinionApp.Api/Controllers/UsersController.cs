@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OpinionApp.Api;
 using OpinionApp.Application;
 using OpinionApp.Infrastructure;
 
@@ -13,8 +14,11 @@ namespace OpinionApp.Api.Controllers;
 public sealed class UsersController(
     AppDbContext db,
     UserManager<ApplicationUser> users,
-    IImageStorageService imageStorage) : ControllerBase
+    IImageStorageService imageStorage,
+    IConfiguration configuration) : ControllerBase
 {
+    private string SupportEmail => SupportIdentity.GetEmail(configuration);
+
     [Authorize]
     [HttpGet("me")]
     public async Task<IActionResult> Me()
@@ -123,13 +127,19 @@ public sealed class UsersController(
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 50);
         var query = q.Trim();
+        var supportEmail = SupportEmail.ToLowerInvariant();
         var result = await db.Users.AsNoTracking()
             .Where(user => user.EmailConfirmed && user.UserName != null && EF.Functions.ILike(user.UserName, $"%{query}%"))
             .OrderBy(user => user.UserName)
             .Skip((page - 1) * pageSize).Take(pageSize)
             .Select(user => new
             {
-                user.Id, user.UserName, user.ProfilePhotoUrl, user.Bio,
+                user.Id,
+                UserName = user.Email != null && user.Email.ToLower() == supportEmail
+                    ? SupportIdentity.DisplayName
+                    : user.UserName,
+                user.ProfilePhotoUrl,
+                user.Bio,
                 PostCount = db.Posts.Count(post => post.AuthorId == user.Id)
             }).ToListAsync();
         return Ok(result);
@@ -139,11 +149,18 @@ public sealed class UsersController(
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(string id)
     {
+        var supportEmail = SupportEmail.ToLowerInvariant();
         var user = await db.Users.AsNoTracking()
             .Where(item => item.Id == id && item.EmailConfirmed)
             .Select(item => new
             {
-                item.Id, item.UserName, item.ProfilePhotoUrl, item.Bio, item.CreatedAt,
+                item.Id,
+                UserName = item.Email != null && item.Email.ToLower() == supportEmail
+                    ? SupportIdentity.DisplayName
+                    : item.UserName,
+                item.ProfilePhotoUrl,
+                item.Bio,
+                item.CreatedAt,
                 PostCount = db.Posts.Count(post => post.AuthorId == item.Id)
             }).SingleOrDefaultAsync();
         return user is null ? NotFound() : Ok(user);
@@ -156,17 +173,51 @@ public sealed class UsersController(
         if (!await db.Users.AnyAsync(user => user.Id == id && user.EmailConfirmed)) return NotFound();
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 50);
+        var supportEmail = SupportEmail.ToLowerInvariant();
         var posts = await db.Posts.AsNoTracking().Where(post => post.AuthorId == id)
             .OrderByDescending(post => post.CreatedAt).Skip((page - 1) * pageSize).Take(pageSize)
             .Select(post => new
             {
                 post.Id, post.Content, post.ImageUrl, post.Rating, post.CreatedAt, post.AuthorId,
-                AuthorName = db.Users.Where(user => user.Id == post.AuthorId).Select(user => user.UserName).FirstOrDefault(),
+                AuthorName = db.Users.Where(user => user.Id == post.AuthorId)
+                    .Select(user => user.Email != null && user.Email.ToLower() == supportEmail
+                        ? SupportIdentity.DisplayName
+                        : user.UserName)
+                    .FirstOrDefault(),
                 Place = post.Place == null ? null : new { post.Place.Id, post.Place.Name, post.Place.Category, post.Place.City },
                 LikeCount = post.Likes.Count,
                 CommentCount = db.Comments.Count(comment => comment.PostId == post.Id)
             }).ToListAsync();
         return Ok(posts);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("{id}/comments")]
+    public async Task<IActionResult> Comments(string id, [FromQuery] int page = 1, [FromQuery] int pageSize = 30,
+        CancellationToken cancellationToken = default)
+    {
+        if (!await db.Users.AnyAsync(user => user.Id == id && user.EmailConfirmed, cancellationToken))
+        {
+            return NotFound();
+        }
+
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+        var comments = await db.Comments.AsNoTracking()
+            .Where(comment => comment.AuthorId == id && comment.Post != null && comment.Post.DeletedAt == null)
+            .OrderByDescending(comment => comment.CreatedAt)
+            .ThenByDescending(comment => comment.Id)
+            .Skip((page - 1) * pageSize).Take(pageSize)
+            .Select(comment => new
+            {
+                comment.Id,
+                comment.Content,
+                comment.CreatedAt,
+                PostId = comment.Post!.Id,
+                PostContent = comment.Post.Content,
+                PlaceName = comment.Post.Place == null ? null : comment.Post.Place.Name
+            }).ToListAsync(cancellationToken);
+        return Ok(comments);
     }
 }
 
