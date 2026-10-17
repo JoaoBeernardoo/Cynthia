@@ -105,6 +105,12 @@ export class ApiService {
     });
   }
 
+  userPosts(id: string, page = 1): Observable<Post[]> {
+    return this.http.get<Post[]>(`${this.base}/users/${id}/posts`, {
+      params: { page, pageSize: 20 }
+    });
+  }
+
   suggestions(): Observable<Suggestion[]> {
     return this.http.get<Suggestion[]>(`${this.base}/suggestions`, { params: { pageSize: 100 } });
   }

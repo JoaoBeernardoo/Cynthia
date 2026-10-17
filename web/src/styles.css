@@ -309,6 +309,10 @@ h1, h2, p { margin-top: 0; }
 .profile-form-actions .muted { font-size: 9px; }
 .public-profile-card { margin-bottom: 28px; }
 .public-profile-bio { max-width: 560px; white-space: pre-wrap; }
+.public-profile-post { padding-bottom: 0; }
+.public-post-actions { display: flex; min-height: 43px; align-items: center; gap: 18px; margin-left: 50px; border-top: 1px solid #f0f2f5; color: #8994a5; font-size: 10px; }
+.public-post-actions a { margin-left: auto; color: var(--blue); font-weight: 700; }
+.public-post-actions a:hover { color: var(--blue-dark); }
 .profile-comments-heading { margin: 0 0 14px; }
 .profile-comments-heading .eyebrow { margin-bottom: 5px; }
 .profile-comments-heading h2 { margin: 0 0 5px; font-size: 18px; }
@@ -381,7 +385,7 @@ h1, h2, p { margin-top: 0; }
   .online-pill { margin: 0; }
   .compose-card, .post-card { padding-right: 14px; padding-left: 14px; }
   .post-card { padding-bottom: 0; }
-  .post-content, .post-place, .post-actions, .comments-panel { margin-left: 0; }
+  .post-content, .post-place, .post-actions, .comments-panel, .public-post-actions { margin-left: 0; }
   .post-image { width: 100%; margin-left: 0; }
   .guest-prompt { flex-wrap: wrap; }
   .guest-prompt .primary-button { width: 100%; }
@@ -416,6 +420,8 @@ h1, h2, p { margin-top: 0; }
   .post-actions { gap: 15px; }
   .post-actions button { font-size: 9px; }
   .post-actions .share-action { display: none; }
+  .public-post-actions { flex-wrap: wrap; gap: 8px 12px; padding: 8px 0; font-size: 9px; }
+  .public-post-actions a { margin-left: 0; }
   .map-search { padding: 0 10px; }
   .map-search input { font-size: 10px; }
   .map-search button { padding: 0 8px; }
